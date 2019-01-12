@@ -1,0 +1,25 @@
+My assessment for homework 1:
+
+1. set oparation functions
+I write the first five problems related to the set operations by applying the
+math knowledge I learned in high school about sets.
+Basically, they all use pattern matching according to their math definition.
+I used recursion for the subset function and the set_union function.
+The equal_sets function just needs to use subset function twice.
+For the intersection and difference set opration, I used List.filter to
+return all the satisfied elements in the list for convenience.
+I used List.mem for all the set operations, but at first I intended to use
+List.exists. I discarded the List.exists after I read the module and find mem.
+
+2. computing fixed point of a function
+This function is not that hard after I understand the definition of the 
+fixed point. At first glance, I think the result is related to the period of 
+function because the computation method involves f (f (f x))...
+
+3. filter_reachable g
+I consider this function the most difficult one for homework 1. Although I
+understand the grammar and rules quickly since I am linguistics major, 
+I did not know how to write the function. I carefully analyzed the process
+and intended to write a big function at first. But later I divided the function
+into several parts -- checked the symbol first, and then gradully constructed 
+the reachable rules using recursion.

@@ -1,0 +1,44 @@
+type ('nonterminal, 'terminal) symbol =
+  | N of 'nonterminal
+  | T of 'terminal
+
+(*Problem 1*)
+let rec subset a b = match a with
+| [] -> true
+| first::rest -> if List.mem first b then subset rest b
+                 else false;;
+
+(*Problem 2*)
+let equal_sets a b = (subset a b) && (subset b a);;
+
+(*Problem 3*)
+let rec set_union a b = match a with
+| [] -> b
+| first::rest -> if List.mem first b then set_union rest b
+                 else set_union rest (first::b);;
+
+(*Problem 4*)
+let set_intersection a b = List.filter (fun i -> List.mem i a) b;;
+
+(*Problem 5*)
+let set_diff a b = List.filter (fun d -> not (List.mem d b)) a;;
+
+(*Problem 6*)
+let rec computed_fixed_point eq f x = if eq (f x) x then x 
+                                      else computed_fixed_point eq f (f x);;
+
+(*Problem 7*)
+let s_nonterminal symbol = match symbol with
+| T symbol -> false
+| N symbol -> true
+
+let rec create_rules rules r_list = match rules with
+| [] -> []
+| first::rest -> if List.exists ((=)(N(fst first))) r_list
+                 then first::(create_rules rest r_list)
+                 else create_rules rest r_list
+let filter_1 g reach = List.filter s_nonterminal(List.flatten(List.map snd (create_rules (snd g) reach)))
+let filter_2 g reach = (N(fst g))::(filter_1 g reach)
+
+let prefilter_reachable g = create_rules (snd g)(computed_fixed_point (equal_sets) (filter_2 g)([(N(fst g))]))
+let filter_reachable g = (fst g, prefilter_reachable g);;
