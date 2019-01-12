@@ -1,0 +1,78 @@
+(*test cases for convert_grammar*)
+type awksub_nonterminals =
+  | Expr | Lvalue | Incrop | Binop | Num
+
+let awksub_rules =
+   [Expr, [T"("; N Expr; T")"];
+    Expr, [N Num];
+    Expr, [N Expr; N Binop; N Expr];
+    Expr, [N Lvalue];
+    Expr, [N Incrop; N Lvalue];
+    Expr, [N Lvalue; N Incrop];
+    Lvalue, [T"$"; N Expr];
+    Incrop, [T"++"];
+    Incrop, [T"--"];
+    Binop, [T"+"];
+    Binop, [T"-"];
+    Num, [T"0"];
+    Num, [T"1"];
+    Num, [T"2"];
+    Num, [T"3"];
+    Num, [T"4"];
+    Num, [T"5"];
+    Num, [T"6"];
+    Num, [T"7"];
+    Num, [T"8"];
+    Num, [T"9"]]
+
+let awksub_grammar = Expr, awksub_rules
+
+let convert_test1 = (snd (convert_grammar awksub_grammar)) Expr
+let convert_test2 = (snd (convert_grammar awksub_grammar)) Lvalue
+let convert_test3 = (snd (convert_grammar awksub_grammar)) Incrop
+let convert_test4 = (snd (convert_grammar awksub_grammar)) Binop
+let convert_test5 = (snd (convert_grammar awksub_grammar)) Num
+(*check the corresponding output...end of test for convert_grammar*)
+
+(*two test cases for parse_prefix, including test cases provided by the syllabus*)
+type english_nonterminals = 
+  | S | VP | DP | PP | NN | V | D | P
+
+let accept_all derivation string = Some (derivation, string)
+let accept_empty_suffix derivation = function
+   | [] -> Some (derivation, [])
+   | _ -> None
+
+let english_grammar =
+    (S, function
+        | S -> [[N DP; N VP]]
+        | DP -> [[N D; N NN; N PP]; [N D; N NN]; [N D]]
+        | D -> [[T"I"];[T"a"];[T"the"]]
+        | NN -> [[T"man"];[T"woman"];[T"park"]]
+        | VP -> [[N V; N DP]; [N V; N DP; N PP]]
+        | V -> [[T"kissed"]]
+        | PP -> [[N P; N DP]]
+        | P -> [[T"in"]])
+
+let test_1 = (parse_prefix english_grammar accept_all ["I"; "kissed"; "the"; "man"; "in"; "the"; "park"])
+           = Some
+             ([(S, [N DP; N VP]);
+               (DP, [N D]); (D, [T"I"]);
+               (VP, [N V; N DP]);
+               (V, [T"kissed"]); (DP, [N D; N NN; N PP]);
+               (D, [T"the"]); (NN, [T"man"]);
+               (PP, [N P; N DP]);
+               (P, [T"in"]); (DP, [N D; N NN]);
+               (D, [T"the"]); (NN, [T"park"])], [])
+
+type hw1_nonterminals = 
+  | Conversation | Shout | Snore
+
+let hw1_grammar = 
+    (Conversation, function
+                   | Conversation -> [[N Shout]; [N Snore]]
+                   | Snore -> [[T"ZZZ"]]
+                   | Shout -> [[T"Zoe!"; N Shout]; [T"watch out!"; N Shout]])
+
+let test_2 = (parse_prefix hw1_grammar accept_all ["Zoe!"; "Zoe!"; "Zoe!"])
+           = None

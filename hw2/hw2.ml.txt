@@ -1,0 +1,35 @@
+type ('nonterminal, 'terminal) symbol =
+  | N of 'nonterminal
+  | T of 'terminal
+
+(*warm up*)
+let convert_grammar gram1 = 
+    let rec rule_list nt rules = match rules with
+        | [] -> []
+        | (nter_exp, rhs)::t -> if nt = nter_exp then rhs::(rule_list nt t)
+                                 else rule_list nt t in 
+    (fst gram1, fun nt -> (rule_list nt (snd gram1)));;
+
+
+(*parsing function*)
+let rec all_matcher pre_rules select_rules acceptor derivation fragment = 
+    match select_rules with
+          | [] -> acceptor derivation fragment
+          | (N fst) :: t ->
+            let next_acc = all_matcher pre_rules t acceptor in alter_matcher pre_rules fst (pre_rules fst) next_acc derivation fragment
+          | (T fst) :: t -> match fragment with
+                            | [] -> None
+                            | a::b -> if (fst = a)
+                         then (all_matcher pre_rules t acceptor derivation b)
+                                        else None
+          
+and alter_matcher pre_rules sta_sym select_rules acceptor derivation fragment =
+     match select_rules with
+     | [] -> None
+     | fst :: t -> match (all_matcher pre_rules fst acceptor (derivation@[sta_sym, fst]) fragment) with
+       | None -> alter_matcher pre_rules sta_sym t acceptor derivation fragment
+       | x -> x;;
+
+let parse_prefix gram acceptor fragment = match gram with
+    | (sta_sym, pre_rules) -> alter_matcher pre_rules sta_sym (pre_rules sta_sym) acceptor [] fragment;;
+    

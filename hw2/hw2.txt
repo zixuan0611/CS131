@@ -1,0 +1,82 @@
+A report for homework 2
+
+1. warm up
+For the warm up problem, we basically need to convert from the grammar style
+of hw1 to that of hw2. In order to write the function, I firstly noticed the
+difference between the two styles. The style of grammar for hw2 is clearer
+than that of hw1 because it lists all the rules for one nonterminal together.
+The function works for the conversion process in the way that it uses a nested
+and recursive function to gradually find out all the rules for one nonterminal
+syambol. It forms the grammar in the style of hw2 by recursion.
+
+2. par_prefix function
+This is the main part of the homework2. I firstly went to the class website
+to figure out how the parse function works. It is a complex process for me.
+The function takes three argument, which are the grammar, the acceptor, and
+the frament. The grammar is just what we converted in the first problem. The
+acceptor takes a rule list and a suffix from the fragment, returning a wrapped
+value by "Some" construction. The fragment is the expression we need to parse.
+
+Then I began to think about the parsing tree and I was going to parse the
+expression from the bottom to the top. But I found that we might ignore some
+conditions if we parse upwards. Besides, we need to confirm tha the derivation
+is leftmost. So I started to parse from the top and expand the nonterminal
+symbols followed the leftmost principle. 
+
+Basically the function is consisted of two matcher functions. The first one is
+called all_matcher, which means we use the function to try to match completely
+and this function is recursive. If the list is empty, then we directly plug
+the derivation and fragment into the acceptor and return what the acceptor
+returns. If it is a terminal symbol, then we test if the start of the fragment
+can be matched with this symbol and if so, we call the function recursively to
+keep examining. If it is a nonterminal symbol, then we need to call the
+alter_matcher (illustrated below) to look for the derivations of current
+symbol. It is very important to update the acceptor using the alter_matcher so
+that we can continue our parsing process. At first, I was troubled in handling
+the update of acceptor and understanding the meaning of acceptor. Then I found
+that we need to use the function to go through all prossible derivations in
+order and thus update the accpetor. Also, in this function, if there is
+no match, we return none as required.
+
+The second one is called alter_matcher. This function is concerned about the
+symbol with more than one rule. I considered the method to deal with the
+alternative derivations and ended up with a function to check the suffix.
+In this function, we call all_matcher to test if the current suffix matches
+recursively. If it does not match, we need to choose next rule in the list
+to examine. Otherwise, we can use the current derivation.
+
+The main function is just use to begin the process. The main idea is to use
+the two matcher functions interactively to complete the parsing process.
+
+3. test cases
+To write test cases for homework 2, I firstly considered cases for warm up
+problem. I reused one of the grammar in hw1 and applied the written function.
+Then I used several function to check if the conversition works correctly.
+I separated the returned hw2-style grammar into several parts according to
+the nonterminals and then checked these parts one by one. 
+
+Then I considered how to write test cases for parse_prefix function. As a 
+student also majored in linguistics, I applied what I learned in the 
+linguistics class to the test cases. I used english grammar and sketched some
+general syntax structures of English for testing. I used a sentence composed
+of a determiner phrase and a verb pharse with a propositional phrase. It is
+a somehow complex structure for this homework and the test is successful.
+I also wrote a test case adapted from the homework1. It is a so-called
+conversation grammar and I tested if the function can detect a blind alley
+rule. This test is also successful, returning none as required.
+
+4. weaknesses
+This program is not perfect. The most serious shortcoming I think is the input
+grammar. It must be left associative strictly following the leftmost rule.
+Because we may go into an infinite loop if the grammar is not as expected.
+That means, we cannot have a grammar saying that a has rule, which is a;b;c.
+The "a" cannot be the first in the rule to be evaluated, otherwise, it will
+go into an infinite loop.
+
+The other problem perhaps is related to the ambiguous grammar, especially for
+prepositional phrase. In English, the prepositional phrase can be used to
+describe the subject or the object. For example, the sentence "I met the woman
+with a book". The prepositional phrase can mean that "the woman with a book"
+or "I with a book". In this condition, the result of parsing all depends on
+the order we write down the rules in the grammar. We can only have one
+derivation for this sentence due to the implementation of the program.
